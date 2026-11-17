@@ -8,7 +8,7 @@ spring:
     driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:
-      ddl-auto: none  # это то что мы не меняем БД которая была 
+      ddl-auto: none  # это то что мы не меняем БД которая была
     show-sql: true
     properties:
       hibernate:
