@@ -1,3 +1,15 @@
 spring:
   application:
     name: wishlist
+  datasource:
+    url: jdbc:postgresql://localhost:5432/wishlist
+    username: postgres
+    password: 1234
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: none  # это то что мы не меняем БД которая была 
+    show-sql: true
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
