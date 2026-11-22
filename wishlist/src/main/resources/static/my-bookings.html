@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Мои бронирования - Wish List</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="icon" href="data:,">
+</head>
+<body>
+<div class="container">
+    <h1> Мои бронирования</h1>
+
+    <!-- Навигация -->
+    <div class="nav-bar">
+        <a href="/profile.html">Профиль</a>
+        <a href="/my-wishes.html">Мои желания</a>
+        <a href="/my-bookings.html">Мои бронирования</a>
+        <a href="/users.html">Пользователи</a>
+        <a href="#" onclick="logout()">Выход</a>
+    </div>
+
+    <!-- Список бронирований -->
+    <div id="bookings-list"></div>
+</div>
+
+<script>
+    const token = localStorage.getItem('token');
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+
+    if (!token) window.location.href = '/login.html';
+
+    async function loadMyBookings() {
+        try {
+            const response = await fetch('/bookings', {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            const bookings = await response.json();
+
+            const container = document.getElementById('bookings-list');
+
+            if (bookings.length === 0) {
+                container.innerHTML = '<div class="card"><p> Вы ещё ничего не забронировали</p></div>';
+                return;
+            }
+
+            container.innerHTML = bookings.map(b => `
+                <div class="wish-card">
+                    <div class="booking-header">
+                        <h3> ${escapeHtml(b.ownerName || 'Пользователь #' + b.ownerId)}</h3>
+                    </div>
+                    <div class="wish-content">
+                        <h4> ${escapeHtml(b.wishTitle || 'Желание #' + b.wishId)}</h4>
+                        ${b.wishLink ? `<p><a href="${b.wishLink}" target="_blank">🔗 Ссылка на товар</a></p>` : ''}
+                        ${b.wishImage ? `<img src="${b.wishImage}" alt="Фото" class="wish-image">` : ''}
+                        <p> Цена: ${b.wishPrice ? b.wishPrice + ' руб.' : 'не указана'}</p>
+                    </div>
+                    <div class="wish-actions">
+                        <button onclick="cancelBooking(${b.wishId})" class="danger"> Отменить бронирование</button>
+                    </div>
+                </div>
+            `).join('');
+        } catch (error) {
+            console.error('Ошибка загрузки:', error);
+            document.getElementById('bookings-list').innerHTML = '<div class="card error">❌ Ошибка загрузки бронирований</div>';
+        }
+    }
+
+    async function cancelBooking(wishId) {
+        if (!confirm('Отменить бронирование? Желание снова станет доступным для других пользователей.')) return;
+
+        try {
+            const response = await fetch(`/bookings?wishId=${wishId}`, {
+                method: 'DELETE',
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+
+            if (response.ok) {
+                alert('✅ Бронирование отменено');
+                loadMyBookings();
+                // Обновляем статистику в профиле, если нужно
+                if (window.opener) window.opener.loadStats();
+            } else {
+                const error = await response.json();
+                alert('❌ Ошибка: ' + (error.error || 'Неизвестная ошибка'));
+            }
+        } catch (error) {
+            console.error('Ошибка:', error);
+            alert('❌ Ошибка подключения к серверу');
+        }
+    }
+
+    function escapeHtml(str) {
+        if (!str) return '';
+        return str.replace(/[&<>]/g, function(m) {
+            if (m === '&') return '&amp;';
+            if (m === '<') return '&lt;';
+            if (m === '>') return '&gt;';
+            return m;
+        });
+    }
+
+    function logout() {
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        window.location.href = '/';
+    }
+
+    loadMyBookings();
+</script>
+</body>
+</html>

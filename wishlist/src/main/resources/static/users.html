@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Пользователи - Wish List</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+<div class="container">
+  <h1> Пользователи</h1>
+
+  <div class="nav-bar">
+    <a href="/profile.html">Профиль</a>
+    <a href="/my-wishes.html">Мои желания</a>
+    <a href="/my-bookings.html">Мои бронирования</a>
+    <a href="/users.html">Пользователи</a>
+    <a href="#" onclick="logout()">Выход</a>
+  </div>
+
+  <div class="card">
+    <input type="text" id="search" placeholder="🔍 Поиск пользователей..." class="search-input">
+  </div>
+
+  <div id="users-list" class="grid"></div>
+</div>
+
+<script>
+  const token = localStorage.getItem('token');
+  const currentUser = JSON.parse(localStorage.getItem('user') || '{}');
+  const isAdmin = currentUser.roles === 'ADMIN';
+
+  if (!token) window.location.href = '/login.html';
+
+  let allUsers = [];
+
+  async function loadUsers() {
+    try {
+      const response = await fetch('/users', {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      allUsers = await response.json();
+      renderUsers(allUsers);
+    } catch (error) {
+      console.error('Ошибка загрузки:', error);
+    }
+  }
+
+  function renderUsers(users) {
+    const container = document.getElementById('users-list');
+    const filtered = users.filter(u => u.id !== currentUser.id);
+
+    if (filtered.length === 0) {
+      container.innerHTML = '<div class="card">Нет других пользователей</div>';
+      return;
+    }
+
+    container.innerHTML = filtered.map(user => `
+            <div class="user-card">
+                <h3>${escapeHtml(user.name || user.login)}</h3>
+                <button class="success" onclick="viewWishes(${user.id}, '${escapeHtml(user.name || user.login)}')"> Смотреть желания</button>
+                ${isAdmin ? `<button onclick="deleteUser(${user.id})" class="danger">Удалить пользователя</button>` : ''}
+            </div>
+        `).join('');
+  }
+
+  async function deleteUser(userId) {
+    if (!confirm('Удалить этого пользователя и все его желания?')) return;
+
+    try {
+      const response = await fetch(`/user/${userId}`, {
+        method: 'DELETE',
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+
+      if (response.ok) {
+        alert('Пользователь удалён');
+        loadUsers();
+      } else {
+        alert('Ошибка удаления');
+      }
+    } catch (error) {
+      console.error('Ошибка:', error);
+    }
+  }
+
+  function viewWishes(userId, userName) {
+    window.location.href = `/user-wishes.html?userId=${userId}&userName=${encodeURIComponent(userName)}`;
+  }
+
+  document.getElementById('search')?.addEventListener('input', (e) => {
+    const searchTerm = e.target.value.toLowerCase();
+    const filtered = allUsers.filter(user =>
+            (user.name && user.name.toLowerCase().includes(searchTerm))
+    );
+    renderUsers(filtered);
+  });
+
+  function escapeHtml(str) {
+    if (!str) return '';
+    return str.replace(/[&<>]/g, function(m) {
+      if (m === '&') return '&amp;';
+      if (m === '<') return '&lt;';
+      if (m === '>') return '&gt;';
+      return m;
+    });
+  }
+
+  function logout() {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    window.location.href = '/';
+  }
+
+  loadUsers();
+</script>
+</body>
+</html>

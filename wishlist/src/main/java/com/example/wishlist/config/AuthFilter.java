@@ -6,12 +6,11 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 
-@Component
+
 public class AuthFilter extends OncePerRequestFilter {
 
     private final AuthService authService;
@@ -26,7 +25,7 @@ public class AuthFilter extends OncePerRequestFilter {
 
         String path = request.getRequestURI();
 
-        if (path.startsWith("/auth") || path.startsWith("/register")) {
+        if (path.equals("/users") && request.getMethod().equals("POST")) {
             filterChain.doFilter(request, response);
             return;
         }

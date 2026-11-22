@@ -51,6 +51,7 @@ public class WishServiceImpl implements WishService {
         }
 
         wish.setUserId(existing.getUserId()); // Сохраняем владельца
+        wish.setStatus(existing.getStatus());// Сохраняем владельца
         return wishRepository.save(wish);
     }
 

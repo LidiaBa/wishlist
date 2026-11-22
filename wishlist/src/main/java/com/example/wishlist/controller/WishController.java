@@ -25,6 +25,11 @@ public class WishController {
         return wishService.getByUserId(userId);
     }
 
+    @GetMapping("/user/{userId}")
+    public List<Wish> getWishesByUserId(@PathVariable Long userId) {
+        return wishService.getByUserId(userId);
+    }
+
     @GetMapping("/{id}")
     public Wish getWish(@PathVariable Long id) {
         return wishService.get(id);

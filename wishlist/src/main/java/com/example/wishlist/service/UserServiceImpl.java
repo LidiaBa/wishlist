@@ -57,6 +57,9 @@ public class UserServiceImpl implements UserService {
         if (user.getName() != null && user.getName().isBlank()) throw new IllegalArgumentException("Name cannot be empty");
 
         user.setLogin(existing.getLogin()); // Логин менять нельзя
+        if (user.getPassword() == null || user.getPassword().isBlank()) {
+            user.setPassword(existing.getPassword());
+        }
         User updated = userRepository.save(user); // save() заменяет update()
         updated.setPassword(null);
         return updated;
