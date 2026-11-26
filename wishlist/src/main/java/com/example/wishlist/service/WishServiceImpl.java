@@ -40,11 +40,6 @@ public class WishServiceImpl implements WishService {
     }
 
     @Override
-    public List<Wish> getAll() {
-        return wishRepository.findAll();
-    }
-
-    @Override
     public Wish update(Wish wish, Long currentUserId) {
 
         if (wish.getId() == null) throw new IllegalArgumentException("Wish ID is required for update");
@@ -61,34 +56,15 @@ public class WishServiceImpl implements WishService {
 
     @Override
     public void delete(Long id, Long currentUserId) {
-        log.debug("Delete wish by id {} from user {}", id, currentUserId );
-        if (id == null) throw new IllegalArgumentException("Wish ID is required");
-        Wish existing = get(id);
 
+        log.debug("Delete wish by id {} from user {}", id, currentUserId );
+
+        if (id == null) throw new IllegalArgumentException("Wish ID is required");
+
+        Wish existing = get(id);
         if (currentUserId != null && !existing.getUserId().equals(currentUserId)) {
             throw new SecurityException("You can only delete your own wishes");
         }
-
         wishRepository.deleteById(id);
-    }
-
-    @Override
-    public void bookWish(Long wishId) {
-        log.debug("Book wish by id {}", wishId);
-        Wish wish = get(wishId);
-        if (!"FREE".equals(wish.getStatus())) throw new IllegalStateException("Wish is already booked");
-
-        wish.setStatus("BOOKED");
-        wishRepository.save(wish); // Вместо кастомного updateStatus
-    }
-
-    @Override
-    public void unbookWish(Long wishId) {
-        log.debug("Unbook wish by id {}", wishId);
-        Wish wish = get(wishId);
-        if (!"BOOKED".equals(wish.getStatus())) throw new IllegalStateException("Wish is not booked");
-
-        wish.setStatus("FREE");
-        wishRepository.save(wish);
     }
 }
