@@ -73,6 +73,6 @@ public class UserServiceImpl implements UserService {
         User existing = userRepository.findById(id).orElse(null);
         if (existing == null) throw new RuntimeException("User not found with id: " + id);
 
-        userRepository.deleteById(id); // deleteById() заменяет delete()
+        userRepository.deleteById(id);
     }
 }

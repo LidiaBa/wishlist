@@ -2,7 +2,7 @@ package com.example.wishlist.controller;
 
 import com.example.wishlist.domain.Wish;
 import com.example.wishlist.service.WishService;
-import jakarta.servlet.http.HttpServletRequest;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -11,17 +11,14 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/wishes")
+@RequiredArgsConstructor
+
 public class WishController {
 
     private final WishService wishService;
 
-    public WishController(WishService wishService) {
-        this.wishService = wishService;
-    }
-
     @GetMapping
-    public List<Wish> getMyWishes(HttpServletRequest request) {
-        Long userId = (Long) request.getAttribute("userId");
+    public List<Wish> getMyWishes(@RequestAttribute("userId") Long userId) {
         return wishService.getByUserId(userId);
     }
 
@@ -37,23 +34,22 @@ public class WishController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public Wish createWish(@RequestBody Wish wish, HttpServletRequest request) {
-        Long userId = (Long) request.getAttribute("userId");
+    public Wish createWish(@RequestBody Wish wish, @RequestAttribute("userId") Long userId) {
         wish.setUserId(userId);
         return wishService.create(wish);
     }
 
     @PutMapping("/{id}")
-    public Wish updateWish(@PathVariable Long id, @RequestBody Wish wish, HttpServletRequest request) {
-        Long userId = (Long) request.getAttribute("userId");
+    public Wish updateWish(@PathVariable Long id, @RequestBody Wish wish, @RequestAttribute("userId") Long userId) {
         wish.setId(id);
         return wishService.update(wish, userId);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteWish(@PathVariable Long id, HttpServletRequest request) {
-        Long userId = (Long) request.getAttribute("userId");
-        String userRole = (String) request.getAttribute("userRole");
+    public ResponseEntity<Void> deleteWish(@PathVariable Long id,
+                                           @RequestAttribute("userId") Long userId,
+                                           @RequestAttribute("userRole") String userRole)
+    {
 
         if ("ADMIN".equals(userRole)) {
             wishService.delete(id, null);

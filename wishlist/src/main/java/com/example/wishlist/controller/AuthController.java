@@ -2,6 +2,7 @@ package com.example.wishlist.controller;
 
 import com.example.wishlist.dto.Token;
 import com.example.wishlist.service.AuthService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -10,13 +11,11 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/auth")
+@RequiredArgsConstructor
+
 public class AuthController {
 
     private final AuthService authService;
-
-    public AuthController(AuthService authService) {
-        this.authService = authService;
-    }
 
     @PostMapping
     public ResponseEntity<?> login(@RequestParam String login, @RequestParam String password) {

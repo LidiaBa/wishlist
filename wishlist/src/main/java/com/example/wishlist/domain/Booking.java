@@ -9,10 +9,10 @@ import lombok.NoArgsConstructor;
 @Entity
 @Table(name = "bookings")
 @Data //данный класс сущность
-
 @Builder // этого нет на лекции
 @NoArgsConstructor // этого нет на лекции
 @AllArgsConstructor // этого нет на лекции
+
 public class Booking {
 
     @Id //

@@ -6,7 +6,7 @@ import com.example.wishlist.domain.Wish;
 import com.example.wishlist.service.BookingService;
 import com.example.wishlist.service.UserService;
 import com.example.wishlist.service.WishService;
-import jakarta.servlet.http.HttpServletRequest;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -16,23 +16,19 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-@RestController
+@RestController // выходная сущность по rest принципам будет преобразована в json
 @RequestMapping("/bookings")
+@RequiredArgsConstructor
+
 public class BookingController {
 
     private final BookingService bookingService;
     private final WishService wishService;
     private final UserService userService;
 
-    public BookingController(BookingService bookingService, WishService wishService, UserService userService) {
-        this.bookingService = bookingService;
-        this.wishService = wishService;
-        this.userService = userService;
-    }
 
     @GetMapping
-    public List<Map<String, Object>> getMyBookings(HttpServletRequest request) {
-        Long userId = (Long) request.getAttribute("userId");
+    public List<Map<String, Object>> getMyBookings(@RequestAttribute("userId") Long userId) {
         List<Booking> bookings = bookingService.getMyBookings(userId);
         List<Map<String, Object>> result = new ArrayList<>();
 
@@ -60,15 +56,17 @@ public class BookingController {
     }
 
     @PostMapping
-    public ResponseEntity<Booking> bookWish(@RequestParam Long wishId, HttpServletRequest request) {
-        Long userId = (Long) request.getAttribute("userId");
+    public ResponseEntity<Booking> bookWish(
+            @RequestParam Long wishId,
+            @RequestAttribute("userId") Long userId) {
         Booking booking = bookingService.book(wishId, userId);
         return ResponseEntity.status(HttpStatus.CREATED).body(booking);
     }
 
     @DeleteMapping
-    public ResponseEntity<Void> cancelBooking(@RequestParam Long wishId, HttpServletRequest request) {
-        Long userId = (Long) request.getAttribute("userId");
+    public ResponseEntity<Void> cancelBooking(
+            @RequestParam Long wishId,
+            @RequestAttribute("userId") Long userId) {
         bookingService.cancel(wishId, userId);
         return ResponseEntity.noContent().build();
     }
