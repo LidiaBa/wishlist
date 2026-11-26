@@ -2,17 +2,17 @@ package com.example.wishlist.service;
 
 import com.example.wishlist.domain.User;
 import com.example.wishlist.repository.UserRepository;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
+@Slf4j
+@RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
-
-    public UserServiceImpl(UserRepository userRepository) {
-        this.userRepository = userRepository;
-    }
 
     @Override
     public User create(User user) {
@@ -38,6 +38,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User get(Long id) {
+        log.debug("Finding user by id {} ", id);
         if (id == null) throw new IllegalArgumentException("User ID cannot be null");
 
         User user = userRepository.findById(id).orElse(null);
@@ -67,6 +68,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void delete(Long id) {
+        log.debug("Delete user by id {} ", id);
         if (id == null) throw new IllegalArgumentException("User ID cannot be null");
         User existing = userRepository.findById(id).orElse(null);
         if (existing == null) throw new RuntimeException("User not found with id: " + id);

@@ -8,14 +8,15 @@ import lombok.NoArgsConstructor;
 
 @Entity
 @Table(name = "bookings")
-@Data
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
+@Data //данный класс сущность
+
+@Builder // этого нет на лекции
+@NoArgsConstructor // этого нет на лекции
+@AllArgsConstructor // этого нет на лекции
 public class Booking {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id //
+    @GeneratedValue(strategy = GenerationType.IDENTITY) // все перекладывается на плечи субд, если там не описано все упадет, тоесть при создании id не передается
     private Long id;
 
     @Column(name = "wish_id")

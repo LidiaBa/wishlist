@@ -68,7 +68,7 @@
     if (!confirm('Удалить этого пользователя и все его желания?')) return;
 
     try {
-      const response = await fetch(`/user/${userId}`, {
+      const response = await fetch(`/users/${userId}`, {
         method: 'DELETE',
         headers: { 'Authorization': `Bearer ${token}` }
       });
