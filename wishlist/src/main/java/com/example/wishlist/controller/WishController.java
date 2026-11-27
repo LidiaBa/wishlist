@@ -1,6 +1,8 @@
 package com.example.wishlist.controller;
 
 import com.example.wishlist.domain.Wish;
+import com.example.wishlist.dto.WishDto;
+import com.example.wishlist.mapper.WishMapper;
 import com.example.wishlist.service.WishService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -21,34 +23,41 @@ public class WishController {
     private final WishService wishService;
 
     @GetMapping
-    public List<Wish> getMyWishes(@AuthenticationPrincipal Jwt jwt) {
-        Long userId = Long.valueOf(Objects.requireNonNull(jwt.getSubject(), "ID пользователя не найден в токене"));
-        return wishService.getByUserId(userId);
+    public List<WishDto> getMyWishes(@AuthenticationPrincipal Jwt jwt) {
+        Long userId = Long.valueOf(Objects.requireNonNull(jwt.getSubject()));
+        return wishService.getByUserId(userId)
+                .stream()
+                .map(WishMapper::toDto)
+                .toList();
     }
 
     @GetMapping("/user/{userId}")
-    public List<Wish> getWishesByUserId(@PathVariable Long userId) {
-        return wishService.getByUserId(userId);
+    public List<WishDto> getWishesByUserId(@PathVariable Long userId) {
+        return wishService.getByUserId(userId)
+                .stream()
+                .map(WishMapper::toDto)
+                .toList();
     }
 
     @GetMapping("/{id}")
-    public Wish getWish(@PathVariable Long id) {
-        return wishService.get(id);
+    public WishDto getWish(@PathVariable Long id) {
+
+        return WishMapper.toDto(wishService.get(id));
     }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public Wish createWish(@RequestBody Wish wish, @AuthenticationPrincipal Jwt jwt) {
-        Long userId = Long.valueOf(Objects.requireNonNull(jwt.getSubject(), "ID пользователя не найден в токене"));
+    public WishDto createWish(@RequestBody Wish wish, @AuthenticationPrincipal Jwt jwt) {
+        Long userId = Long.valueOf(Objects.requireNonNull(jwt.getSubject()));
         wish.setUserId(userId);
-        return wishService.create(wish);
+        return WishMapper.toDto(wishService.create(wish));
     }
 
     @PutMapping("/{id}")
-    public Wish updateWish(@PathVariable Long id, @RequestBody Wish wish, @AuthenticationPrincipal Jwt jwt) {
+    public WishDto updateWish(@PathVariable Long id, @RequestBody Wish wish, @AuthenticationPrincipal Jwt jwt) {
         Long userId = Long.valueOf(Objects.requireNonNull(jwt.getSubject(), "ID пользователя не найден в токене"));
         wish.setId(id);
-        return wishService.update(wish, userId);
+        return WishMapper.toDto(wishService.update(wish, userId));
     }
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteWish(

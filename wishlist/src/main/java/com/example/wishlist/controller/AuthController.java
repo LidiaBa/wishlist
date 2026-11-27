@@ -1,5 +1,7 @@
 package com.example.wishlist.controller;
 import com.example.wishlist.domain.User;
+import com.example.wishlist.dto.TokenResponse;
+import com.example.wishlist.mapper.UserMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -23,9 +25,7 @@ public class AuthController {
     @Value("${jwt.ttl}")
     private Duration ttl;
 
-    // Записи (record) для удобной передачи данных
     public record LoginRequest(String username, String password) {}
-    public record TokenResponse(String accessToken, long expiresIn, User user) {}
 
     @PostMapping("/login")
     public TokenResponse login(@RequestBody LoginRequest loginRequest) {
@@ -53,6 +53,6 @@ public class AuthController {
 
         user.setPassword(null);
 
-        return new TokenResponse(token, ttl.toSeconds(), user);
+        return new TokenResponse(token, ttl.toSeconds(), UserMapper.toDto(user));
     }
 }

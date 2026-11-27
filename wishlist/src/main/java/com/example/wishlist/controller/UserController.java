@@ -1,6 +1,8 @@
 package com.example.wishlist.controller;
 
 import com.example.wishlist.domain.User;
+import com.example.wishlist.dto.UserDto;
+import com.example.wishlist.mapper.UserMapper;
 import com.example.wishlist.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -18,21 +20,20 @@ import java.util.Objects;
 public class UserController {
 
     private final UserService userService;
-
     @GetMapping
-    public List<User> getAllUsers() {
-        return userService.getAll();
+    public List<UserDto> getAllUsers() {
+        return userService.getAll().stream().map(UserMapper::toDto).toList();
     }
 
     @GetMapping("/{id}")
-    public User getUser(@PathVariable Long id) {
-        return userService.get(id);
+    public UserDto getUser(@PathVariable Long id) {
+        return UserMapper.toDto(userService.get(id));
     }
 
     @PostMapping
-    @ResponseStatus(HttpStatus.CREATED)// чтоб статус 201
-    public User createUser(@RequestBody User user) {
-        return userService.create(user);
+    @ResponseStatus(HttpStatus.CREATED)
+    public UserDto createUser(@RequestBody User user) {
+        return UserMapper.toDto(userService.create(user));
     }
 
     @PutMapping("/{id}")

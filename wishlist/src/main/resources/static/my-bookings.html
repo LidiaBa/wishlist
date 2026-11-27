@@ -47,13 +47,16 @@
             container.innerHTML = bookings.map(b => `
                 <div class="wish-card">
                     <div class="booking-header">
-                        <h3> ${escapeHtml(b.ownerName || 'Пользователь #' + b.ownerId)}</h3>
+                        <!-- Используем вложенный объект owner -->
+                        <h3> Владелец: ${escapeHtml(b.owner ? b.owner.name : 'Пользователь #' + b.ownerId)}</h3>
                     </div>
                     <div class="wish-content">
-                        <h4> ${escapeHtml(b.wishTitle || 'Желание #' + b.wishId)}</h4>
-                        ${b.wishLink ? `<p><a href="${b.wishLink}" target="_blank">🔗 Ссылка на товар</a></p>` : ''}
-                        ${b.wishImage ? `<img src="${b.wishImage}" alt="Фото" class="wish-image">` : ''}
-                        <p> Цена: ${b.wishPrice ? b.wishPrice + ' руб.' : 'не указана'}</p>
+                        <!-- Используем вложенный объект wish -->
+                        <h4> ${escapeHtml(b.wish ? b.wish.title : 'Желание #' + b.wishId)}</h4>
+
+                        ${b.wish && b.wish.link ? `<p><a href="${b.wish.link}" target="_blank">🔗 Ссылка на товар</a></p>` : ''}
+
+                        <p> Цена: ${b.wish && b.wish.price ? b.wish.price + ' руб.' : 'не указана'}</p>
                     </div>
                     <div class="wish-actions">
                         <button onclick="cancelBooking(${b.wishId})" class="danger"> Отменить бронирование</button>
