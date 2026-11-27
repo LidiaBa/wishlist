@@ -5,6 +5,8 @@ import com.example.wishlist.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -32,7 +34,6 @@ public class UserController {
         return userService.create(user);
     }
 
-    // Аналог doPut
     @PutMapping("/{id}")
     public User updateUser(@PathVariable Long id, @RequestBody User user) {
         user.setId(id);
@@ -42,8 +43,9 @@ public class UserController {
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteUser(
             @PathVariable Long id,
-            @RequestAttribute("userId") Long currentUserId,
-            @RequestAttribute("userRole") String userRole) {
+            @AuthenticationPrincipal Jwt jwt) {
+        Long currentUserId = Long.valueOf(jwt.getSubject());
+        String userRole = jwt.getClaimAsString("roles");
 
         if (!"ADMIN".equals(userRole) && !id.equals(currentUserId)) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();

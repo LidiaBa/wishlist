@@ -4,6 +4,7 @@ import com.example.wishlist.domain.User;
 import com.example.wishlist.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -13,6 +14,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
 
     @Override
     public User create(User user) {
@@ -25,8 +27,8 @@ public class UserServiceImpl implements UserService {
         if (existing != null) {
             throw new IllegalStateException("User with login '" + user.getLogin() + "' already exists");
         }
-
-        return userRepository.save(user); // save() заменяет create()
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
+        return userRepository.save(user);
     }
 
     @Override

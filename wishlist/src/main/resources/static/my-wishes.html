@@ -66,6 +66,10 @@
             const response = await fetch('/wishes', {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
+            if (!response.ok) {
+                // Если сервер вернул ошибку (400, 401, 500), прерываем выполнение
+                throw new Error(`Ошибка сервера: ${response.status}`);
+            }
             const wishes = await response.json();
 
             const container = document.getElementById('wishes-list');

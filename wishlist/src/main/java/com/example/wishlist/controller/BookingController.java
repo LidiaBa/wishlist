@@ -9,6 +9,8 @@ import com.example.wishlist.service.WishService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
@@ -28,7 +30,8 @@ public class BookingController {
 
 
     @GetMapping
-    public List<Map<String, Object>> getMyBookings(@RequestAttribute("userId") Long userId) {
+    public List<Map<String, Object>> getMyBookings(@AuthenticationPrincipal Jwt jwt) {
+        Long userId = Long.valueOf(jwt.getSubject());
         List<Booking> bookings = bookingService.getMyBookings(userId);
         List<Map<String, Object>> result = new ArrayList<>();
 
@@ -58,7 +61,8 @@ public class BookingController {
     @PostMapping
     public ResponseEntity<Booking> bookWish(
             @RequestParam Long wishId,
-            @RequestAttribute("userId") Long userId) {
+            @AuthenticationPrincipal Jwt jwt) {
+        Long userId = Long.valueOf(jwt.getSubject());
         Booking booking = bookingService.book(wishId, userId);
         return ResponseEntity.status(HttpStatus.CREATED).body(booking);
     }
@@ -66,7 +70,9 @@ public class BookingController {
     @DeleteMapping
     public ResponseEntity<Void> cancelBooking(
             @RequestParam Long wishId,
-            @RequestAttribute("userId") Long userId) {
+            @AuthenticationPrincipal Jwt jwt) {
+
+        Long userId = Long.valueOf(jwt.getSubject());
         bookingService.cancel(wishId, userId);
         return ResponseEntity.noContent().build();
     }

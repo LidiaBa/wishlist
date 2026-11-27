@@ -1,5 +1,8 @@
 server:
   port: 8081
+jwt:
+  secret: pqQ4tnjYJhXukG53eKZdJkUWezEOKHlNydew49mjLAc=
+  ttl: 1h
 spring:
   application:
     name: wishlist

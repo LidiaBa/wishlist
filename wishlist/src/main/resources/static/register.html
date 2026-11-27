@@ -38,12 +38,10 @@
     const password = document.getElementById('password').value;
     const name = document.getElementById('name').value;
 
-    // Очищаем сообщения
     document.getElementById('error-message').innerText = '';
     document.getElementById('success-message').innerText = '';
 
     try {
-      // ✅ Исправлено: запрос на /register, а не на /user
       const response = await fetch('/users', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -51,22 +49,29 @@
       });
 
       if (response.ok) {
+        // Если всё хорошо, читаем JSON
         const user = await response.json();
-        document.getElementById('success-message').innerText = ` Регистрация успешна! Добро пожаловать, ${user.name}!`;
+        document.getElementById('success-message').innerText = `Регистрация успешна! Добро пожаловать, ${user.name}!`;
         document.getElementById('success-message').style.display = 'block';
 
-        // Перенаправляем на страницу входа через 2 секунды
         setTimeout(() => {
           window.location.href = '/login.html';
         }, 2000);
       } else {
-        const error = await response.json();
-        document.getElementById('error-message').innerText = error.error || 'Ошибка регистрации';
+        // Если ошибка, пытаемся прочитать текст ошибки, если он есть
+        let errorText = 'Ошибка регистрации';
+        try {
+          const error = await response.json();
+          errorText = error.message || error.error || errorText;
+        } catch (e) {
+          // Если JSON пустой, оставляем стандартный текст
+        }
+        document.getElementById('error-message').innerText = errorText;
         document.getElementById('error-message').style.display = 'block';
       }
     } catch (error) {
       console.error('Ошибка:', error);
-      document.getElementById('error-message').innerText = ' Ошибка подключения к серверу. Убедитесь, что сервер запущен.';
+      document.getElementById('error-message').innerText = 'Ошибка подключения к серверу. Убедитесь, что сервер запущен.';
       document.getElementById('error-message').style.display = 'block';
     }
   });

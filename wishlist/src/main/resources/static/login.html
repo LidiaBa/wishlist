@@ -29,27 +29,40 @@
     document.getElementById('login-form').addEventListener('submit', async (e) => {
         e.preventDefault();
 
+        // Очищаем старые ошибки при новой попытке
+        document.getElementById('error-message').innerText = '';
+
         const login = document.getElementById('login').value;
         const password = document.getElementById('password').value;
 
         try {
-            const response = await fetch('/auth', {
+            // 1. Отправляем JSON на новый эндпоинт /auth/login
+            const response = await fetch('/auth/login', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                body: `login=${encodeURIComponent(login)}&password=${encodeURIComponent(password)}`
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    username: login,
+                    password: password
+                })
             });
 
-            const data = await response.json();
+            if (response.ok) {
+                // 2. Читаем новый формат ответа (TokenResponse)
+                const data = await response.json();
 
-            if (data.token && data.token.token) {
-                // Сохраняем токен и информацию о пользователе
-                localStorage.setItem('token', data.token.token);
-                localStorage.setItem('user', JSON.stringify(data.token.user));
+                // 3. Сохраняем токен (теперь он в поле accessToken)
+                localStorage.setItem('token', data.accessToken);
+
+                // 4. Сохраняем объект пользователя (он в поле user)
+                localStorage.setItem('user', JSON.stringify(data.user));
+
+                // 5. Перекидываем на профиль
                 window.location.href = '/profile.html';
             } else {
                 document.getElementById('error-message').innerText = 'Неверный логин или пароль';
             }
         } catch (error) {
+            console.error('Ошибка:', error);
             document.getElementById('error-message').innerText = 'Ошибка подключения к серверу';
         }
     });
