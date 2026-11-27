@@ -13,10 +13,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @RestController // выходная сущность по rest принципам будет преобразована в json
 @RequestMapping("/bookings")
@@ -31,7 +28,7 @@ public class BookingController {
 
     @GetMapping
     public List<Map<String, Object>> getMyBookings(@AuthenticationPrincipal Jwt jwt) {
-        Long userId = Long.valueOf(jwt.getSubject());
+        Long userId = Long.valueOf(Objects.requireNonNull(jwt.getSubject(), "ID пользователя не найден в токене"));
         List<Booking> bookings = bookingService.getMyBookings(userId);
         List<Map<String, Object>> result = new ArrayList<>();
 
@@ -62,7 +59,7 @@ public class BookingController {
     public ResponseEntity<Booking> bookWish(
             @RequestParam Long wishId,
             @AuthenticationPrincipal Jwt jwt) {
-        Long userId = Long.valueOf(jwt.getSubject());
+        Long userId = Long.valueOf(Objects.requireNonNull(jwt.getSubject(), "ID пользователя не найден в токене"));
         Booking booking = bookingService.book(wishId, userId);
         return ResponseEntity.status(HttpStatus.CREATED).body(booking);
     }
@@ -72,7 +69,7 @@ public class BookingController {
             @RequestParam Long wishId,
             @AuthenticationPrincipal Jwt jwt) {
 
-        Long userId = Long.valueOf(jwt.getSubject());
+        Long userId = Long.valueOf(Objects.requireNonNull(jwt.getSubject(), "ID пользователя не найден в токене"));
         bookingService.cancel(wishId, userId);
         return ResponseEntity.noContent().build();
     }

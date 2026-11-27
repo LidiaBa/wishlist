@@ -10,6 +10,7 @@ import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Objects;
 
 @RestController
 @RequestMapping("/users")
@@ -44,7 +45,7 @@ public class UserController {
     public ResponseEntity<Void> deleteUser(
             @PathVariable Long id,
             @AuthenticationPrincipal Jwt jwt) {
-        Long currentUserId = Long.valueOf(jwt.getSubject());
+        Long currentUserId = Long.valueOf(Objects.requireNonNull(jwt.getSubject(), "ID пользователя отсутствует в токене"));
         String userRole = jwt.getClaimAsString("roles");
 
         if (!"ADMIN".equals(userRole) && !id.equals(currentUserId)) {

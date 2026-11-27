@@ -10,6 +10,7 @@ import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Objects;
 
 @RestController
 @RequestMapping("/wishes")
@@ -21,7 +22,7 @@ public class WishController {
 
     @GetMapping
     public List<Wish> getMyWishes(@AuthenticationPrincipal Jwt jwt) {
-        Long userId = Long.valueOf(jwt.getSubject());
+        Long userId = Long.valueOf(Objects.requireNonNull(jwt.getSubject(), "ID пользователя не найден в токене"));
         return wishService.getByUserId(userId);
     }
 
@@ -38,14 +39,14 @@ public class WishController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public Wish createWish(@RequestBody Wish wish, @AuthenticationPrincipal Jwt jwt) {
-        Long userId = Long.valueOf(jwt.getSubject());
+        Long userId = Long.valueOf(Objects.requireNonNull(jwt.getSubject(), "ID пользователя не найден в токене"));
         wish.setUserId(userId);
         return wishService.create(wish);
     }
 
     @PutMapping("/{id}")
     public Wish updateWish(@PathVariable Long id, @RequestBody Wish wish, @AuthenticationPrincipal Jwt jwt) {
-        Long userId = Long.valueOf(jwt.getSubject());
+        Long userId = Long.valueOf(Objects.requireNonNull(jwt.getSubject(), "ID пользователя не найден в токене"));
         wish.setId(id);
         return wishService.update(wish, userId);
     }
@@ -54,7 +55,7 @@ public class WishController {
             @PathVariable Long id,
             @AuthenticationPrincipal Jwt jwt) {
 
-        Long userId = Long.valueOf(jwt.getSubject());
+        Long userId = Long.valueOf(Objects.requireNonNull(jwt.getSubject(), "ID пользователя не найден в токене"));
         String userRole = jwt.getClaimAsString("roles"); // Берем роль из токена
 
         if ("ADMIN".equals(userRole)) {
